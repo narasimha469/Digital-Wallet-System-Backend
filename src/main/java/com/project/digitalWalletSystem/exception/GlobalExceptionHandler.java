@@ -51,17 +51,18 @@ public class GlobalExceptionHandler {
 
     // 4. Handle Duplicate Resource (Email/Phone)
     @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<Map<String, String>> handleDuplicateResource(DuplicateResourceException ex) {
+    public ResponseEntity<Map<String, Object>> handleDuplicateResource(DuplicateResourceException ex) {
         Map<String, String> errors = new HashMap<>();
-
-        // Determine which field caused duplication
-        String message = ex.getMessage(); // "Email already exists!" or "Phone number already exists!"
+        String message = ex.getMessage();
         if (message.contains("Email")) errors.put("customerEmail", message);
         else if (message.contains("Phone")) errors.put("customerPhoneNumber", message);
         else errors.put("general", message);
 
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        Map<String, Object> body = new HashMap<>();
+        body.put("errors", errors);  // key must be 'errors'
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
+
     
     // 5. Handle @Valid validation errors (POST/PUT body)
     @ExceptionHandler(MethodArgumentNotValidException.class)
